@@ -5,7 +5,11 @@ class Warehouse:
         self.width = width
         self.height = height
         self.obstacles = []  # Lista para armazenar as coordenadas dos obstáculos
+        self.robots = []  # Lista para armazenar os robôs
 
+    def add_robot(self, robot):
+        self.robots.append(robot)
+        
     def is_valid_location(self, x, y):
         return 0 <= x < self.width and 0 <= y < self.height and (x, y) not in self.obstacles
 

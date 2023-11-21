@@ -5,18 +5,10 @@ class Robot:
         self.x = x
         self.y = y
         self.direction = "N"
-        self.warehouse = warehouse  # Adicione a referência ao Warehouse
-        self.turning_time = 0  # Tempo de viragem
-        self.start_time = None  # Registre o tempo de início da tarefa
-        self.end_time = None  # Registre o tempo de término da tarefa
-
-    def execute_turn(self, direction):
-        if self.direction == direction:
-            return 0  # Não há necessidade de virar
-        else:
-            self.direction = direction
-            self.turning_time = 1.5  # Tempo para virar
-            return self.turning_time
+        self.warehouse = warehouse
+        self.turning_time = 0
+        self.start_time = None
+        self.end_time = None
 
     def move_forward(self):
         if self.direction == "N":
@@ -28,41 +20,48 @@ class Robot:
         elif self.direction == "W":
             self.x -= 1
 
-        move_time = self.warehouse.calculate_move_time(self.x, self.y, self)
-        print(f"Robô moveu-se para frente. Tempo de deslocação: {move_time} segundos")
-
     def turn_right(self):
-        turn_time = self.execute_turn("E")
-        print(f"Robô virou para a direita. Tempo de viragem: {turn_time} segundos")
+        if self.direction == "N":
+            self.direction = "E"
+            self.turning_time = 1.5
+        elif self.direction == "E":
+            self.direction = "S"
+            self.turning_time = 1.5
+        elif self.direction == "S":
+            self.direction = "W"
+            self.turning_time = 1.5
+        elif self.direction == "W":
+            self.direction = "N"
+            self.turning_time = 1.5
 
     def turn_left(self):
-        turn_time = self.execute_turn("W")
-        print(f"Robô virou para a esquerda. Tempo de viragem: {turn_time} segundos")
+        if self.direction == "N":
+            self.direction = "W"
+            self.turning_time = 1.5
+        elif self.direction == "W":
+            self.direction = "S"
+            self.turning_time = 1.5
+        elif self.direction == "S":
+            self.direction = "E"
+            self.turning_time = 1.5
+        elif self.direction == "E":
+            self.direction = "N"
+            self.turning_time = 1.5
 
     def move_to(self, x, y):
-        # Registre a posição atual antes de se mover
-        current_x, current_y = self.x, self.y
+        if self.turning_time > 0:
+            print(f"O robô está virando. Tempo restante: {self.turning_time} segundos.")
+            return
 
-        # Verifique se o movimento é válido antes de atualizar a posição do robô
-        if self.is_valid_move(x, y):
-            self.x = x
-            self.y = y
+        if (x, y) == (self.x, self.y):
+            print(f"O robô já está na posição ({x}, {y}).")
+            return
 
-            # Calcule a direção em que o robô se moveu
-            if x > current_x:
-                movement_direction = "direita"
-            elif x < current_x:
-                movement_direction = "esquerda"
-            elif y > current_y:
-                movement_direction = "frente"
-            elif y < current_y:
-                movement_direction = "trás"
-            else:
-                movement_direction = "posição atual"
-
-            print(f"Robô moveu-se para ({x}, {y}) na direção: {movement_direction}")
-        else:
+        if not self.is_valid_move(x, y):
             print(f"O movimento para ({x}, {y}) não é válido. O robô permanece na posição atual ({self.x}, {self.y}).")
+            return
+
+        self.move_to_valid(x, y)
 
     def is_valid_move(self, x, y):
         # Implemente a lógica para verificar se o movimento é válido, considerando obstáculos, tempo de viragem e colisões com outros robôs.
@@ -70,10 +69,6 @@ class Robot:
         # Primeiro, verifique o tempo de viragem
         if self.turning_time > 0:
             return False  # O robô ainda está virando
-
-        # Verifique se a nova posição está dentro dos limites do armazém
-        if not (0 <= x < self.warehouse.width and 0 <= y < self.warehouse.height):
-            return False  # Fora dos limites do armazém
 
         # Verifique se a nova posição não colide com obstáculos
         if (x, y) in self.warehouse.obstacles:
@@ -89,7 +84,72 @@ class Robot:
         if abs(x - current_x) + abs(y - current_y) != 1:
             return False  # Não é um movimento adjacente
 
+        # Verifique se a nova posição está dentro dos limites do armazém após verificar obstáculos e outros robôs
+        if not (0 <= x < self.warehouse.width and 0 <= y < self.warehouse.height):
+            return False  # Fora dos limites do armazém
+
         return True  # Movimento válido
+
+    def move_to_valid(self, x, y):
+        # Movimento é válido, atualize a posição do robô
+        current_x, current_y = self.x, self.y
+
+        self.x = x
+        self.y = y
+
+        if x > current_x:
+            movement_direction = "direita"
+        elif x < current_x:
+            movement_direction = "esquerda"
+        elif y > current_y:
+            movement_direction = "frente"
+        elif y < current_y:
+            movement_direction = "trás"
+        else:
+            movement_direction = "posição atual"
+
+        print(f"Robô moveu-se para ({x}, {y}) na direção: {movement_direction}")
+
+    def move_to_with_algorithm(self, x, y, algorithm_name):
+        if algorithm_name == "a_star":
+            path = self.warehouse.find_path_a_star((self.x, self.y), (x, y))
+        elif algorithm_name == "greedy":
+            path = self.warehouse.find_path_greedy((self.x, self.y), (x, y))
+        elif algorithm_name == "bfs":
+            path = self.warehouse.find_path_bfs((self.x, self.y), (x, y))
+        else:
+            print("Algoritmo não reconhecido")
+            return
+
+        if path:
+            for i in range(len(path)):
+                x, y = path[i]
+
+                if (x, y) in self.warehouse.obstacles:
+                    print(f"O robô colidiu com um obstáculo em ({x}, {y})")
+                else:
+                    self.move_to_valid(x, y)
+
+                    if i != len(path) - 1:
+                        x_next, y_next = path[i + 1]
+                        dx = x_next - x
+                        dy = y_next - y
+
+                        direction = None
+
+                        if dx == 1:
+                            direction = "direita"
+                        elif dx == -1:
+                            direction = "esquerda"
+                        elif dy == 1:
+                            direction = "frente"
+                        elif dy == -1:
+                            direction = "trás"
+
+                        if direction:
+                            print(f"Robô moveu-se para ({x}, {y}) na direção: {direction}")
+        else:
+            print("Não foi possível encontrar um caminho.")
 
     def start_task(self):
         self.start_time = time.time()

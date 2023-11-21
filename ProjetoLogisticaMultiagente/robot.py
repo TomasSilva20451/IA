@@ -1,3 +1,5 @@
+import time
+
 class Robot:
     def __init__(self, x, y, warehouse):
         self.x = x
@@ -5,7 +7,17 @@ class Robot:
         self.direction = "N"
         self.warehouse = warehouse  # Adicione a referência ao Warehouse
         self.turning_time = 0  # Tempo de viragem
-        
+        self.start_time = None  # Registre o tempo de início da tarefa
+        self.end_time = None  # Registre o tempo de término da tarefa
+
+    def execute_turn(self, direction):
+        if self.direction == direction:
+            return 0  # Não há necessidade de virar
+        else:
+            self.direction = direction
+            self.turning_time = 1.5  # Tempo para virar
+            return self.turning_time
+
     def move_forward(self):
         if self.direction == "N":
             self.y -= 1
@@ -14,37 +26,19 @@ class Robot:
         elif self.direction == "E":
             self.x += 1
         elif self.direction == "W":
-            self.x += 1
-    
-    def turn_right(self):
-        if self.direction == "N":
-            self.direction = "E"
-            self.turning_time = 1.5
-        elif self.direction == "E":
-            self.direction = "S"
-            self.turning_time = 1.5
-        elif self.direction == "S":
-            self.direction = "W"
-            self.turning_time = 1.5
-        elif self.direction == "W":
-            self.direction = "N"
-            self.turning_time = 1.5
-                
-    def turn_left(self):
-        if self.direction == "N":
-            self.direction = "W"
-            self.turning_time = 1.5
-        elif self.direction == "W":
-            self.direction = "S"
-            self.turning_time = 1.5
-        elif self.direction == "S":
-            self.direction = "E"
-            self.turning_time = 1.5
-        elif self.direction == "E":
-            self.direction = "N"
-            self.turning_time = 1.5
+            self.x -= 1
 
-        
+        move_time = self.warehouse.calculate_move_time(self.x, self.y, self)
+        print(f"Robô moveu-se para frente. Tempo de deslocação: {move_time} segundos")
+
+    def turn_right(self):
+        turn_time = self.execute_turn("E")
+        print(f"Robô virou para a direita. Tempo de viragem: {turn_time} segundos")
+
+    def turn_left(self):
+        turn_time = self.execute_turn("W")
+        print(f"Robô virou para a esquerda. Tempo de viragem: {turn_time} segundos")
+
     def move_to(self, x, y):
         # Registre a posição atual antes de se mover
         current_x, current_y = self.x, self.y
@@ -72,7 +66,7 @@ class Robot:
 
     def is_valid_move(self, x, y):
         # Implemente a lógica para verificar se o movimento é válido, considerando obstáculos, tempo de viragem e colisões com outros robôs.
-        
+
         # Primeiro, verifique o tempo de viragem
         if self.turning_time > 0:
             return False  # O robô ainda está virando
@@ -97,3 +91,14 @@ class Robot:
 
         return True  # Movimento válido
 
+    def start_task(self):
+        self.start_time = time.time()
+
+    def end_task(self):
+        self.end_time = time.time()
+
+    def task_duration(self):
+        if self.start_time is not None and self.end_time is not None:
+            return self.end_time - self.start_time
+        else:
+            return None

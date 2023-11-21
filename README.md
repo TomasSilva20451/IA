@@ -6,7 +6,7 @@ O objetivo deste trabalho é criar um ambiente multiagente que simula um sistema
 **Tecnologias e Linguagens de Programação:**
 * Linguagem de programação: Python
 * Bibliotecas: Numpy, Matplotlib (para visualização)
-* Algoritmos de pesquisa: Pesquisa em Largura, A* (A-estrela), Busca Gulosa
+* Algoritmos de pesquisa: Pesquisa em Largura, A* (A-estrela), Pesquisa Gulosa
 
 **Implementação do Programa:**
 O sistema será implementado em Python, uma linguagem de programação versátil e amplamente utilizada para desenvolvimento de IA. Para visualização e teste, podem ser utilizadas bibliotecas como Matplotlib e Numpy.

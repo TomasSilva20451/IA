@@ -25,6 +25,13 @@ class Warehouse:
         return abs(current[0] - goal[0]) + abs(current[1] - goal[1])
 
     def find_path_a_star(self, start, goal):
+        """
+        Encontra o caminho usando o algoritmo A*.
+
+        :param start: A posição inicial.
+        :param goal: A posição final.
+        :return: Lista de coordenadas representando o caminho ou None se nenhum caminho for encontrado.
+        """
         queue = deque([(start, [])])
         visited = set()
 
@@ -50,7 +57,15 @@ class Warehouse:
 
         return None
 
+
     def find_path_greedy(self, start, goal):
+        """
+        Encontra o caminho usando o algoritmo Greedy.
+
+        :param start: A posição inicial.
+        :param goal: A posição final.
+        :return: Lista de coordenadas representando o caminho ou None se nenhum caminho for encontrado.
+        """
         queue = deque([(start, [])])
         visited = set()
 
@@ -78,6 +93,13 @@ class Warehouse:
         return None
 
     def find_path_bfs(self, start, goal):
+        """
+        Encontra o caminho usando o algoritmo Breadth-First Search (BFS).
+
+        :param start: A posição inicial.
+        :param goal: A posição final.
+        :return: Lista de coordenadas representando o caminho ou None se nenhum caminho for encontrado.
+        """
         queue = deque([(start, [])])
         visited = set()
 

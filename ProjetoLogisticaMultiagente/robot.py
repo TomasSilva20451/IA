@@ -9,6 +9,7 @@ class Robot:
         self.turning_time = 0
         self.start_time = None
         self.end_time = None
+        self.is_carrying_object = False
 
     def move_forward(self):
         if self.direction == "N":
@@ -162,3 +163,24 @@ class Robot:
             return self.end_time - self.start_time
         else:
             return None
+
+    def pick_up_object(self):
+        if self.is_carrying_object:
+            print("O robô já está carregando um objeto.")
+        else:
+            self.is_carrying_object = True
+            print("O robô pegou um objeto.")
+
+    def deliver_object(self, x, y):
+        if not self.is_carrying_object:
+            print("O robô não está carregando um objeto para entregar.")
+            return
+
+        if (x, y) == (self.x, self.y):
+            self.is_carrying_object = False
+            print("O robô entregou o objeto na posição atual.")
+        else:
+            print("O robô não pode entregar o objeto nesta posição. Movendo-se para a posição desejada.")
+            self.move_to(x, y)
+            self.is_carrying_object = False
+            print("O robô entregou o objeto na posição desejada.")

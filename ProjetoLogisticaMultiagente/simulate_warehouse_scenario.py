@@ -3,7 +3,7 @@ import time
 from robot import Robot
 from warehouse import Warehouse
 
-# Adicione estas variáveis de controle no início do seu código
+
 NUM_SIMULATIONS = 10  # Número de simulações para média
 WAREHOUSE_WIDTH = 7
 WAREHOUSE_HEIGHT = 7

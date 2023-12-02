@@ -18,6 +18,8 @@ path = warehouse.find_path_a_star(start, goal)
 if path:
     print("Caminho encontrado:", path)
 
+    #total_time_to_goal = 0  # Inicialize o tempo total ao chegar ao ponto B
+
     current_direction = None
 
     for i in range(len(path)):
@@ -46,8 +48,18 @@ if path:
 
                 if direction:
                     if direction != current_direction:
-                        print(f"Robô moveu-se para ({x}, {y}) na direção: {direction}")
+                        print(
+                            f"Robô moveu-se para ({x}, {y}) na direção: {direction}")
                         current_direction = direction
+
+    # Chame a função move_to_valid e some ao tempo total
+    #total_time_to_goal += robot.move_to_valid(goal[0], goal[1])
+
+    #print(f"O robô levou {total_time_to_goal} segundos para realizar a tarefa.")
+    
+
+    print("Comprimento do caminho:", len(path))
+    print(f"Tempo total: {robot.total_time_elapsed} unidade(s)")
 else:
     print("Não foi possível encontrar um caminho.")
 

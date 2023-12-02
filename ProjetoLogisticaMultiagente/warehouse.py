@@ -1,11 +1,21 @@
 from collections import deque
 
+
 class Warehouse:
     def __init__(self, width, height):
         self.width = width
         self.height = height
         self.obstacles = []
         self.robots = []
+        self.goals = []  # Adicione uma lista de objetivos
+        
+    def add_goal(self, goal):
+        """
+        Adiciona um objetivo ao armazém.
+
+        :param goal: A posição do objetivo.
+        """
+        self.goals.append(goal)
 
     def add_robot(self, robot):
         self.robots.append(robot)
@@ -22,7 +32,7 @@ class Warehouse:
             self.obstacles.remove((x, y))
 
     def heuristic(self, current, goal):
-        return abs(current[0] - goal[0]) + abs(current[1] - goal[1])
+        return ((current[0] - goal[0]) ** 2 + (current[1] - goal[1]) ** 2) ** 0.5
 
     def find_path_a_star(self, start, goal):
         """
@@ -36,15 +46,16 @@ class Warehouse:
         visited = set()
 
         while queue:
-            (x, y), path = queue.popleft()
+            current, path = queue.popleft()
+            x, y = current  # Descompacte a posição atual
 
             if (x, y) == goal:
                 return path + [(x, y)]
 
-            if (x, y) in visited:
+            if current in visited:
                 continue
 
-            visited.add((x, y))
+            visited.add(current)
 
             moves = [(0, -1), (1, 0), (0, 1), (-1, 0)]
 
@@ -56,7 +67,6 @@ class Warehouse:
                     queue.append(((new_x, new_y), new_path))
 
         return None
-
 
     def find_path_greedy(self, start, goal):
         """
@@ -70,18 +80,18 @@ class Warehouse:
         visited = set()
 
         while queue:
-            (x, y), path = queue.popleft()
+            current, path = queue.popleft()
+            x, y = current  # Descompacte a posição atual
 
             if (x, y) == goal:
                 return path + [(x, y)]
 
-            if (x, y) in visited:
+            if current in visited:
                 continue
 
-            visited.add((x, y))
+            visited.add(current)
 
             moves = [(0, -1), (1, 0), (0, 1), (-1, 0)]
-            moves.sort(key=lambda move: self.heuristic((x + move[0], y + move[1]), goal))
 
             for dx, dy in moves:
                 new_x, new_y = x + dx, y + dy
@@ -91,6 +101,7 @@ class Warehouse:
                     queue.append(((new_x, new_y), new_path))
 
         return None
+
 
     def find_path_bfs(self, start, goal):
         """
@@ -119,8 +130,7 @@ class Warehouse:
             for dx, dy in moves:
                 new_x, new_y = x + dx, y + dy
 
-                if self.is_valid_location(new_x, new_y):
-                    new_path = path + [(x, y)]
-                    queue.append(((new_x, new_y), new_path))
+                if self.is_valid_location(new_x, new_y) and (new_x, new_y) not in visited:
+                    queue.append(((new_x, new_y), path + [(x, y)]))
 
         return None

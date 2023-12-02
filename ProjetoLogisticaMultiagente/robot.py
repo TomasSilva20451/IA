@@ -1,5 +1,6 @@
 import time
 
+
 class Robot:
     def __init__(self, x, y, warehouse):
         self.x = x
@@ -10,8 +11,21 @@ class Robot:
         self.start_time = None
         self.end_time = None
         self.is_carrying_object = False
+        self.move_cost = 1  # Custo de movimento
+        self.turn_cost = 1.5  # Custo de viragem
+        self.total_time_elapsed = 0  # Adicione esta linha
 
-    def move_forward(self):
+    def __str__(self):
+        return f"({self.x}, {self.y})"
+    
+    def move_forward(self, print_movement=True):
+        if self.turning_time > 0:
+            if print_movement:
+                print(
+                    f"O robô está virando. Tempo restante: {self.turning_time} segundos.")
+            self.turning_time -= 1  # Reduz o tempo de viragem
+            return
+
         if self.direction == "N":
             self.y -= 1
         elif self.direction == "S":
@@ -20,8 +34,15 @@ class Robot:
             self.x += 1
         elif self.direction == "W":
             self.x -= 1
+        self.turning_time = self.turn_cost  # Tempo de viragem
+        if print_movement:
+            self.print_movement("frente")
 
-    def turn_right(self):
+    def turn_right(self, print_movement=True):
+        self.direction = {"N": "E", "E": "S",
+                          "S": "W", "W": "N"}[self.direction]
+        self.turning_time = self.turn_cost
+
         if self.direction == "N":
             self.direction = "E"
             self.turning_time = 1.5
@@ -35,7 +56,14 @@ class Robot:
             self.direction = "N"
             self.turning_time = 1.5
 
-    def turn_left(self):
+        if print_movement:
+            self.print_movement("direita")
+
+    def turn_left(self, print_movement=True):
+        self.direction = {"N": "W", "W": "S",
+                          "S": "E", "E": "N"}[self.direction]
+        self.turning_time = self.turn_cost
+
         if self.direction == "N":
             self.direction = "W"
             self.turning_time = 1.5
@@ -48,10 +76,23 @@ class Robot:
         elif self.direction == "E":
             self.direction = "N"
             self.turning_time = 1.5
+
+        if print_movement:
+            self.print_movement("esquerda")
+            
+    def print_movement(self, movement_direction):
+        # Método para imprimir mensagens de movimento
+        total_time = self.turning_time + self.move_cost
+        if movement_direction == "trás":
+            total_time += self.move_cost * 2  # Adicione o tempo de marcha tras
+
+        print(
+            f"Robô moveu-se para ({self.x}, {self.y}) na direção: {movement_direction}. Tempo total: {total_time} unidade(s) de tempo.")
 
     def move_to(self, x, y):
         if self.turning_time > 0:
-            print(f"O robô está virando. Tempo restante: {self.turning_time} segundos.")
+            print(
+                f"O robô está virando. Tempo restante: {self.turning_time} segundos.")
             return
 
         if (x, y) == (self.x, self.y):
@@ -59,7 +100,8 @@ class Robot:
             return
 
         if not self.is_valid_move(x, y):
-            print(f"O movimento para ({x}, {y}) não é válido. O robô permanece na posição atual ({self.x}, {self.y}).")
+            print(
+                f"O movimento para ({x}, {y}) não é válido. O robô permanece na posição atual ({self.x}, {self.y}).")
             return
 
         self.move_to_valid(x, y)
@@ -109,7 +151,16 @@ class Robot:
         else:
             movement_direction = "posição atual"
 
-        print(f"Robô moveu-se para ({x}, {y}) na direção: {movement_direction}")
+        # Atualize o tempo total de movimento considerando o tempo de viragem e a marcha atrás
+        total_time = self.turning_time + self.move_cost
+        if movement_direction == "trás":
+            total_time += self.move_cost * 2  # Adicione o tempo de marcha à ré
+
+        self.total_time_elapsed += total_time  # Armazene o tempo total
+
+        print(
+            f"Robô moveu-se para ({x}, {y}) na direção: {movement_direction}. Tempo total: {total_time} unidade(s) de tempo.")
+        return total_time  # Retorne o tempo total
 
     def move_to_with_algorithm(self, x, y, algorithm_name):
         if algorithm_name == "a_star":
@@ -148,7 +199,8 @@ class Robot:
                             direction = "trás"
 
                         if direction:
-                            print(f"Robô moveu-se para ({x}, {y}) na direção: {direction}")
+                            print(
+                                f"Robô moveu-se para ({x}, {y}) na direção: {direction}")
         else:
             print("Não foi possível encontrar um caminho.")
 
@@ -180,7 +232,8 @@ class Robot:
             self.is_carrying_object = False
             print("O robô entregou o objeto na posição atual.")
         else:
-            print("O robô não pode entregar o objeto nesta posição. Movendo-se para a posição desejada.")
+            print(
+                "O robô não pode entregar o objeto nesta posição. Movendo-se para a posição desejada.")
             self.move_to(x, y)
             self.is_carrying_object = False
             print("O robô entregou o objeto na posição desejada.")
